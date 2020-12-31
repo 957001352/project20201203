@@ -37,7 +37,7 @@ public class LoginServiceImpl implements LoginService {
             Map<String, Set> permissions = appMenuServiceImpl.getPermissionsByLoginName(user);
             String token = JWTUtil.sign(loginName, secret, user.getTenantId());
             //返回前端需要数据
-            Map map = new HashMap();
+            Map<String,Object> map = new HashMap<>();
             map.put("permissions",permissions);
             map.put("token",token);
             map.put("loginUser",user);
@@ -53,7 +53,7 @@ public class LoginServiceImpl implements LoginService {
             User user = JSON.parseObject(redisService.get(Const.TOKEN_CACHE_ITEM_PREFIX + token).toString(), User.class);
             Map<String, Set> permissions = appMenuServiceImpl.getPermissionsByLoginName(user);
             //返回前端需要数据
-            Map map = new HashMap();
+            Map<String,Object> map = new HashMap<>();
             map.put("permissions",permissions);
             map.put("expire",redisService.getExpire(Const.TOKEN_CACHE_ITEM_PREFIX+token));
             map.put("token",token);

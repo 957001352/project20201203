@@ -8,6 +8,7 @@ import com.dhlk.domain.Result;
 import com.dhlk.entity.app.LocalAppInfo;
 import com.dhlk.entity.app.StoreAppInfo;
 import com.dhlk.entity.app.StoreGroupInfo;
+import com.dhlk.util.AuthUserUtil;
 import com.dhlk.utils.CheckUtils;
 import com.dhlk.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +27,28 @@ public class AppLocalServiceImpl implements AppLocalService {
     LocalAppInfoDao localAppInfoDao;
     @Autowired
     private StoreAppInfoDao storeAppInfoDao;
+    @Autowired
+    private AuthUserUtil authUserUtil;
 
     @Override
     public Result save(LocalAppInfo localAppInfo) {
 
+        //APP根据租户下载，改为用户下载
+        localAppInfo.setTenantId(authUserUtil.userId());
         LocalAppInfo storeGroupInfo1 = localAppInfoDao.selectByName(localAppInfo);
         if (storeGroupInfo1!=null){
             return ResultUtils.error("该应用已下载");
         }
         StoreAppInfo storeAppInfo = storeAppInfoDao.selectById(localAppInfo.getStoreAppId());
         if(storeAppInfo != null ){
+            //更新下载次数
             Integer downLoadCount = storeAppInfo.getDownloadCount()+1;
             storeAppInfo.setDownloadCount(downLoadCount);
             storeAppInfoDao.updateDownloadCount(storeAppInfo);
         }
+
         //新增
-        Integer flag = localAppInfoDao.insert(localAppInfo);
+        Integer flag =  localAppInfoDao.insert(localAppInfo);
         return flag > 0 ? ResultUtils.success() : ResultUtils.failure();
     }
 
@@ -72,6 +79,7 @@ public class AppLocalServiceImpl implements AppLocalService {
     @Override
     public Result findList(int tenantId) {
 
+        tenantId = authUserUtil.userId();
         List<LocalAppInfo> list = localAppInfoDao.findList(tenantId);
         return ResultUtils.success(list);
     }

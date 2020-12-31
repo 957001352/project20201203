@@ -1,14 +1,16 @@
 package com.dhlk.basicmodule.service.controller;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.dhlk.basicmodule.service.service.LoginService;
 import com.dhlk.domain.Result;
-import com.dhlk.entity.basicmodule.User;
+import com.dhlk.enums.ResultEnum;
+import com.dhlk.utils.DogUtil;
+import com.dhlk.utils.ResultUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +22,8 @@ public class LoginController {
 
     @Autowired
     private LoginService loginService;
-
+    @Value("${dog.check}")
+    private boolean check;
    /* @ApiOperation(value = "登录")
     @PostMapping("/login")
     public Result login(@RequestParam("loginName") String loginName,
@@ -39,8 +42,10 @@ public class LoginController {
                         @RequestParam("x") String x,
                         @RequestParam("y") String y
     ) {
-        Result result = loginService.login(loginName,password,redisKey,x,y);
-        return result;
+        if(check || DogUtil.checkLoginDog()){
+            return loginService.login(loginName,password,redisKey,x,y);
+        }
+        return ResultUtils.error(ResultEnum.DOG_ERROR.getStateInfo());
     }
     @ApiOperation(value = "登出")
     @GetMapping("/logout")

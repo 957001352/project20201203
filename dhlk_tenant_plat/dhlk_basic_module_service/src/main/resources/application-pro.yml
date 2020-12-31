@@ -93,3 +93,5 @@ captcha:
 #      template-image: "F:\\attchment\\verifyImages\\templates"
       origin-image: "/home/software/attachment/verifyImages/originImage"
       template-image: "/home/software/attachment/verifyImages/templates"
+dog:
+  check: false
